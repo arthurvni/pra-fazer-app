@@ -1,24 +1,45 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
+import { firebase } from '../../services/firebaseConfig'
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import styles from './style'
 
-export default function CreateUser() {  
+export default function CreateUser({navigation}) {
     const [nome, setNome] = useState("")
     const [email, setEmail] = useState("")
-    const [senha, setSenha] = useState("")
+    const [password, setpassword] = useState("")
     const [errorCreateUser, setErrorCreateUser] = useState(null)
 
-    function validate(){
-        if (nome == ""){
-        setErrorCreateUser("Informe o seu nome")
-        } else if (email == ""){
-            setErrorCreateUser ("Informe a seu e-mail")
-        } else if (senha == ""){
-            setErrorCreateUser ("Informe a sua senha")
+    function validate() {
+        if (nome == "") {
+            setErrorCreateUser("Informe o seu nome")
+        } else if (email == "") {
+            setErrorCreateUser("Informe a seu e-mail")
+        } else if (password == "") {
+            setErrorCreateUser("Informe a sua senha")
         } else {
-            setErrorCreateUser (null)
+            setErrorCreateUser(null)
+            CreateUser();
         }
 
+    }
+
+
+    const CreateUser = () => {
+
+        const auth = getAuth();
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                navigation.navigate('Tabs')
+
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                setErrorCreateUser(errorMessage);
+                alert(error.message)
+            });
     }
 
     return (
@@ -30,23 +51,23 @@ export default function CreateUser() {
             <TextInput
                 style={styles.input}
                 placeholder='Nome'
-                value={nome} 
+                value={nome}
                 onChangeText={setNome}
             />
 
             <TextInput
                 style={styles.input}
                 placeholder='E-mail'
-                value={email} 
+                value={email}
                 onChangeText={setEmail}
             />
 
             <TextInput
                 style={styles.input}
                 secureTextEntry={true}
-                placeholder='Senha'
-                value={senha} 
-                onChangeText={setSenha}
+                placeholder='password'
+                value={password}
+                onChangeText={setpassword}
             />
 
             <TouchableOpacity
